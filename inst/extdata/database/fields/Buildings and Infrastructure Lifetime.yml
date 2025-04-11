@@ -1,0 +1,24 @@
+end_use:
+  name: End-use type
+  description: Category of end-use
+  type: case
+  coded: True
+  codes:
+    Res: Residential buildings
+    NonRes: Non-residential buildings
+    Civ: Civil engeneering
+    Buildings: Buildings, i.e residential and non-residential buildings
+    All: All end-uses, i.e. residential, non-residential and civil engineering
+time_range:
+  name: Time range
+  description: Time range of the data
+  type: case
+  coded: True
+  codes:
+    1900-1949:
+    1950-1969:
+    1970-1979:
+    1980-1989:
+    1990-1999:
+    2000-2015:
+    2016-2023:

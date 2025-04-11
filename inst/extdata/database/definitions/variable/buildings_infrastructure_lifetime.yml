@@ -1,0 +1,4 @@
+Buildings and Infrastructure Lifetime:
+  description: Expected time a facility stays in-use.
+  dimension: '[time]'
+  default_unit: 'a'
