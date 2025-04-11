@@ -2,6 +2,7 @@
 /renv
 *.bib~*
 .jupyter/
+uv.lock
 
 /man
 *.ipynb
