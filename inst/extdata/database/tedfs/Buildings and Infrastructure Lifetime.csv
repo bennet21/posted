@@ -1,38 +1,21 @@
-region,period,time_range,end_use,value,unit,source
-China,*,1950-1969,Res,39.41,year,Cao19
-China,*,1970-1979,Res,37.05,year,Cao19
-China,*,1980-1989,Res,25.29,year,Cao19
-China,*,1990-1999,Res,26.6,year,Cao19
-China,*,2000-2015,Res,33.83,year,Cao19
-Japan,*,*,Res,34,year,Deetman20
-Eastern Europe,*,*,Res,78,year,Deetman20
-USA,*,*,Res,77,year,Deetman20
-Western Europe,*,*,Res,63,year,Deetman20
-Canada,*,*,Res,51,year,Deetman20
-Mexico,*,*,Res,56,year,Deetman20
-Brazil,*,*,Res,100,year,Deetman20
-Rest of South America,*,*,Res,60.5,year,Deetman20
-Southeastern Asia,*,*,Res,50,year,Deetman20
-Oceania,*,*,Res,83,year,Deetman20
-Global Average,*,*,Res,60,year,Deetman20
-USA,*,*,Res,80,year,Kapur08
-USA,*,*,NonRes,80,year,Kapur08
-USA,*,*,Civ,60,year,Kapur08
-Japan,*,*,All,38.7,year,Hatayama09
-USA,*,*,All,75,year,Hatayama09
-EUR,*,*,All,31.5,year,Hatayama09
-China,*,*,All,32.5,year,Hatayama09
-Europe,*,*,Buildings,75,year,Cao17
-Japan,*,*,Buildings,50,year,Cao17
-Americas,*,*,Buildings,50,year,Cao17
-Europe,*,*,Civ,55,year,Cao17
-Japan,*,*,Civ,40,year,Cao17
-Japan,*,*,Res,40.1,year,Cao17
-Japan,*,*,NonRes,37.8,year,Cao17
-Japan,*,*,Civ,36.3,year,Cao17
-China,*,*,Res,32.4,year,Cao17
-China,*,*,NonRes,32.5,year,Cao17
-China,*,*,Civ,30.3,year,Cao17
-Iran,*,*,Buildings,40,year,Hosseinijou21
-Iran,*,*,Civ,40,year,Hosseinijou21
-India,*,*,All,31,year,Cao21
+region,period,time_range,end_use,value,unit,comment,source,source_detail
+China,*,1950-1969,Res,39.41,year,,Cao19,
+China,*,1970-1979,Res,37.05,year,,Cao19,
+China,*,1980-1989,Res,25.29,year,,Cao19,
+China,*,1990-1999,Res,26.6,year,,Cao19,
+China,*,2000-2015,Res,33.83,year,,Cao19,
+Japan,*,*,Res,34,year,,Deetman20,
+Rest of South America,*,*,Res,60.5,year,,Deetman20,
+USA,*,*,Res,80,year,,Kapur08,
+USA,*,*,NonRes,80,year,,Kapur08,
+USA,*,*,Civ,60,year,,Kapur08,
+Europe,*,*,Res,75,year,Buildings disaggregated into Res and NonRes ,Cao17,
+Europe,*,*,NonRes,75,year,Buildings disaggregated into Res and NonRes ,Cao17,
+Europe,*,*,Civ,55,year,,Cao17,
+Japan,*,*,NonRes,37.8,year,,Cao17,
+Japan,*,*,Civ,36.3,year,,Cao17,
+China,*,*,Civ,30.3,year,,Cao17,
+Iran,*,*,Res,40,year,,Hosseinijou21,
+Iran,*,*,NonRes,40,year,,Hosseinijou21,
+Iran,*,*,Civ,40,year,,Hosseinijou21,
+India,*,*,All,31,year,,Cao21,

@@ -7,8 +7,6 @@ end_use:
     Res: Residential buildings
     NonRes: Non-residential buildings
     Civ: Civil engeneering
-    Buildings: Buildings, i.e residential and non-residential buildings
-    All: All end-uses, i.e. residential, non-residential and civil engineering
 time_range:
   name: Time range
   description: Time range of the data
