@@ -1,23 +1,23 @@
 region,period,time_range,end_use,value,unit,comment,source,source_detail
-China,*,1950-1969,Res,39.41,year,,Cao19,
-China,*,1970-1979,Res,37.05,year,,Cao19,
-China,*,1980-1989,Res,25.29,year,,Cao19,
-China,*,1990-1999,Res,26.6,year,,Cao19,
-China,*,2000-2015,Res,33.83,year,,Cao19,
-Japan,*,*,Res,34,year,,Deetman20,
-Rest of South America,*,*,Res,60.5,year,,Deetman20,
-USA,*,*,Res,80,year,,Kapur08,
-USA,*,*,NonRes,80,year,,Kapur08,
-USA,*,*,Civ,60,year,,Kapur08,
-Europe,*,*,Res,75,year,Buildings disaggregated into Res and NonRes ,Cao17,
-Europe,*,*,NonRes,75,year,Buildings disaggregated into Res and NonRes ,Cao17,
-Europe,*,*,Civ,55,year,,Cao17,
-Japan,*,*,NonRes,37.8,year,,Cao17,
-Japan,*,*,Civ,36.3,year,,Cao17,
-China,*,*,Civ,30.3,year,,Cao17,
-Iran,*,*,Res,40,year,,Hosseinijou21,
-Iran,*,*,NonRes,40,year,,Hosseinijou21,
-Iran,*,*,Civ,40,year,,Hosseinijou21,
-India,*,*,*,31,year,,Cao21,
-CIS,*,*,*,60,year,,Hatayama10,
-Africa,*,*,*,60,year,,Hatayama10,
+China,*,1950-1969,Res,39.41,year,,Cao19,Fig 3a
+China,*,1970-1979,Res,37.05,year,,Cao19,Fig 3b
+China,*,1980-1989,Res,25.29,year,,Cao19,Fig 3c
+China,*,1990-1999,Res,26.6,year,,Cao19,Fig 3d
+China,*,2000-2015,Res,33.83,year,,Cao19,Fig 4b
+Japan,*,*,Res,34,year,,Deetman20,Table 3
+Rest of South America,*,*,Res,60.5,year,,Deetman20,Table 3
+USA,*,*,Res,80,year,,Kapur08,Table 1
+USA,*,*,NonRes,80,year,,Kapur08,Table 1
+USA,*,*,Civ,60,year,,Kapur08,Table 1
+Europe,*,*,Res,75,year,Buildings disaggregated into Res and NonRes ,Cao17,"Supplement S5, Source 12"
+Europe,*,*,NonRes,75,year,Buildings disaggregated into Res and NonRes ,Cao17,"Supplement S5, Source 12"
+Europe,*,*,Civ,55,year,,Cao17,"Supplement S5, Source 12"
+Japan,*,*,NonRes,37.8,year,,Cao17,"Supplement S4, Average"
+Japan,*,*,Civ,36.3,year,,Cao17,"Supplement S4, Average"
+China,*,*,Civ,30.3,year,,Cao17,"Supplement S4, Average"
+Iran,*,*,Res,40,year,,Hosseinijou21,"Table 3, medium lifetime scenario"
+Iran,*,*,NonRes,40,year,,Hosseinijou21,"Table 3, medium lifetime scenario"
+Iran,*,*,Civ,40,year,,Hosseinijou21,"Table 3, medium lifetime scenario"
+India,*,*,*,31,year,,Cao21,Table 4-3 L6e
+CIS,*,*,*,60,year,,Hatayama10,Supplement S7 Table S4
+Africa,*,*,*,60,year,,Hatayama10,Supplement S7 Table S4
