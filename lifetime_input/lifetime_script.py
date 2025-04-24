@@ -15,10 +15,14 @@ x = teds.aggregate(period=2025)
 git_root = os.path.normpath(get_git_root())
 git_root_parent = os.path.dirname(git_root)
 
-output_path = os.path.join(git_root_parent,
+madrat_output_path = os.path.join(git_root_parent,
                            "madrat_wd", 
                            "sources",
                            "PostedLifetimes",
                            "v1",
                            "buildings_and_infrastructure_lifetime.csv")
-x.to_csv(output_path, index=False)
+local_output_path = os.path.join("lifetime_input",
+                                 "output",
+                                 "buildings_and_infrastructure_lifetime.csv")
+x.to_csv(madrat_output_path, index=False)
+x.to_csv(local_output_path, index=False)
