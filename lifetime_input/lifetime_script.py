@@ -23,6 +23,6 @@ madrat_output_path = os.path.join(git_root_parent,
                            "buildings_and_infrastructure_lifetime.csv")
 local_output_path = os.path.join("lifetime_input",
                                  "output",
-                                 "buildings_and_infrastructure_lifetime.csv")
+                                 "output_buildings_and_infrastructure_lifetime.csv")
 x.to_csv(madrat_output_path, index=False)
 x.to_csv(local_output_path, index=False)
