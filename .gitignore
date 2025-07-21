@@ -2,6 +2,7 @@
 /renv
 *.bib~*
 .jupyter/
+.vscode
 
 /man
 *.ipynb
