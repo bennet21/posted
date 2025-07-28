@@ -93,3 +93,7 @@ Tech Variables w/ Flows:
     description: Total cost of production per primary output
     dimension: '[currency]/[flow]'
     default_unit: '{default flow unit full}'
+  Emissions:
+    description: Emissions produced
+    dimension: '[flow]'
+    default_unit: '{default flow unit full}'
