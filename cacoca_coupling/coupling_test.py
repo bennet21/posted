@@ -4,27 +4,28 @@ import pandas as pd
 
 from posted.noslag import DataSet
 
-# %% 
-
 # %%
 
 posted_filename = "Cement Production"
 posted_filename = "Iron Direct Reduction"
+posted_filename = "Electrolysis"
 posted_parent_variable = f"Tech|{posted_filename}"
 teds = DataSet(posted_parent_variable)
-df_posted = teds.aggregate(region="World", period=2019, drop_singular_fields=True) 
+df_posted = teds.aggregate(region="World", period=2019.0, drop_singular_fields=True) 
 
 # %%
 # translate Posted file names to CaCoCa file names
 file_map = {
     "Cement Production": "cement",
     "Iron Direct Reduction": "steel_dri",
+    "Electrolysis": "basic_chemicals",
 }
 # code folder differs if run by ipython or debugger
 code_folder = Path.cwd().parent if Path.cwd().name == "posted" else Path.cwd().parent.parent
 target_folder = code_folder / "cacoca" / "data" / "tech" / "basic"
 df_cacoca_path = target_folder / f"{file_map[posted_filename]}.csv"
 df_cacoca = pd.read_csv(df_cacoca_path, dtype={"Period": "Int64"})
+# TODO: Posted sourced rows should be excluded
 
 # %%
 # Posted variable translation to CaCoCa Type and Component
@@ -66,8 +67,8 @@ component_list = [d["Component"] for d in variable_extraction]
 
 # translate Posted columns to CaCoCa columns
 df_translated = pd.DataFrame({
-    # "Technology": df_posted["subtech"].apply(lambda x: f"Posted-{x}"),
-    "Technology": df_posted["mode"].apply(lambda x: f"Posted-DRI-{x}"),
+    "Technology": df_posted["subtech"].apply(lambda x: f"Posted-{posted_filename.replace(' ', '-')}-{x}"),
+    # "Technology": df_posted["mode"].apply(lambda x: f"Posted-{posted_filename.replace(' ', '-')}-DRI-{x}"),
     "Mode": None,
     "Type": type_list,
     "Component": component_list,
@@ -80,7 +81,7 @@ df_translated = pd.DataFrame({
     "Unit": df_posted["unit"],
     "Non-unit conversion factor": None,
     "Value and uncertainty comment": None,
-    "Source reference": "Posted {posted_parent_variable}",
+    "Source reference": f"Posted {posted_parent_variable}",
     "Source comment": None,
 })
 
@@ -88,6 +89,20 @@ df_translated = pd.DataFrame({
 # Get allowed types and components from df_cacoca
 allowed_types = set(df_cacoca["Type"].dropna().unique())
 allowed_components = set(df_cacoca["Component"].dropna().unique())
+
+# TODO fill
+allowed_types = {
+    "High CAPEX",
+    "Energy demand",
+    "Feedstock demand",
+    "OPEX",
+}
+allowed_components = {
+    "CAPEX",
+    "Electricity",
+    "Additional OPEX",
+    "Hydrogen",
+}
 
 component_exceptions = {"Coal"}
 allowed_components.update(component_exceptions)
