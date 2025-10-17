@@ -6,4 +6,4 @@ code_folder = Path.cwd().parent if Path.cwd().name == "posted" else Path.cwd().p
 target_folder = code_folder / "cacoca" / "data" / "tech" / "posted"
 posted_datafolder = code_folder / "posted" / "inst" / "extdata" / "database" / "tedfs" / "Tech"
 
-generate_cacoca_input(posted_datafolder, target_folder)
+generate_cacoca_input(target_folder, posted_technames="Cement Production")

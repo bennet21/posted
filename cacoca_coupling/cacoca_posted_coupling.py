@@ -1,11 +1,12 @@
 import pandas as pd
 from pathlib import Path
+from typing import Union
 
 from posted.noslag import DataSet
 
 # TODO fill
 ENERGY_TYPES = ["Electricity", "Coal", "Natural Gas"]
-FEEDSTOCK_TYPES = ["Oxygen", "Iron Ore", "Scrap Steel"]
+FEEDSTOCK_TYPES = ["Oxygen", "Iron Ore", "Scrap Steel", "Water"]
 EMISSION_TYPES = ["CO2"]
 ALLOWED_TYPES = {
     "High CAPEX",
@@ -21,6 +22,7 @@ EXPECTED_REMOVAL_TYPES = {
         "OCF",
         "Output Capacity",
         "Output",
+        "Total Output Capacity"
     }
 POSTED_OPEX_COMPONENTS = ['OPEX Variable', 'OPEX Fixed']
 ALLOWED_COMPONENTS = {
@@ -28,14 +30,24 @@ ALLOWED_COMPONENTS = {
     "Additional OPEX",
 }
 TRANSLATION = {"Fossil Gas": "Natural Gas"}
+EXCLUDED_TECHNAMES = []
 
 
 # TODO add low capex
 # TODO get emissions via emissions factor
 # TODO sort by Technology
 
-def generate_cacoca_input(posted_datafolder: Path, target_folder: Path):
-    technames = find_posted_technames(posted_datafolder)
+def generate_cacoca_input(target_folder: Path, posted_technames: Union[str, list] = None, posted_datafolder: Path = None):
+
+    # determine technames to process
+    if posted_technames is not None:
+        technames = posted_technames if isinstance(posted_technames, list) else [posted_technames]
+    elif posted_datafolder is not None:
+        technames = find_posted_technames(posted_datafolder)
+        technames = [name for name in technames if name not in EXCLUDED_TECHNAMES]
+    else:
+        raise ValueError("Either posted_datafolder or posted_technames must be provided.")
+    
     for techname in technames:
         print(f"Processing Posted technology file: {techname}")
         df_posted, posted_parent_variable = get_posted_df(techname)
@@ -110,8 +122,6 @@ def variable_translation(variable: str, parent_variable: str):
             type_ = "Energy demand"
         elif component in FEEDSTOCK_TYPES:
             type_ = "Feedstock demand"
-        else:
-            raise ValueError(f"Unknown component {component} for Input variable")
 
     component = TRANSLATION.get(component, component)
     
