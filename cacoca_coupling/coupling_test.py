@@ -1,38 +1,37 @@
 # %%
+# IMPORTS
+
 from pathlib import Path
 import pandas as pd
 
 from posted.noslag import DataSet
 
 # %%
+# READ POSTED DATA
 
 posted_filename = "Cement Production"
-posted_filename = "Iron Direct Reduction"
-posted_filename = "Electrolysis"
+# posted_filename = "Iron Direct Reduction"
+# posted_filename = "Electrolysis"
 posted_parent_variable = f"Tech|{posted_filename}"
 teds = DataSet(posted_parent_variable)
-df_posted = teds.aggregate(region="World", period=2019.0, drop_singular_fields=True) 
+df_posted = teds.aggregate(region="World", period=2025) 
+df_posted.drop(columns=["region"], inplace=True) # region is redundant
+df_posted
 
 # %%
-# translate Posted file names to CaCoCa file names
-file_map = {
-    "Cement Production": "cement",
-    "Iron Direct Reduction": "steel_dri",
-    "Electrolysis": "basic_chemicals",
-}
-# code folder differs if run by ipython or debugger
-code_folder = Path.cwd().parent if Path.cwd().name == "posted" else Path.cwd().parent.parent
-target_folder = code_folder / "cacoca" / "data" / "tech" / "basic"
-df_cacoca_path = target_folder / f"{file_map[posted_filename]}.csv"
-df_cacoca = pd.read_csv(df_cacoca_path, dtype={"Period": "Int64"})
-# TODO: Posted sourced rows should be excluded
+# CONVERT POSTED TO CACOCA FORMAT
 
-# %%
 # Posted variable translation to CaCoCa Type and Component
+# TODO fill
 energy_types = ["Electricity", "Coal", "Natural Gas"]
-translation = {"Fossil Gas": "Natural Gas"}
+feedstock_types = ["Oxygen", "Iron Ore", "Scrap Steel"]
+emission_types = ["CO2"]
+translation = {"Fossil Gas": "Natural Gas"} #TODO fill
+posted_opex_components = ['OPEX Variable', 'OPEX Fixed']
 
-def variable_translation(variable, parent_variable):
+def variable_translation(variable: str, parent_variable: str):
+    """Translate Posted variable to CaCoCa Type and Component."""
+
     # remove parent variable prefix
     variable = variable.replace(f"{parent_variable}|", "")
 
@@ -46,17 +45,18 @@ def variable_translation(variable, parent_variable):
     if type_ == "CAPEX":
         type_ = "High CAPEX"
 
-    if type_ == "OPEX Variable" or type_ == "OPEX Fixed":
+    elif type_ in posted_opex_components:
+        component = type_ # variable and fixed opex will later be combined to additional opex
         type_ = "OPEX"
-        component = "Additional OPEX"
-
-    if type_ ==  "Input":
+    
+    elif type_ ==  "Input":
         if component in energy_types:
             type_ = "Energy demand"
-        else:
-            # I have never seen this in CaCoCa
+        elif component in feedstock_types:
             type_ = "Feedstock demand"
-        
+        else:
+            raise ValueError(f"Unknown component {component} for Input variable")
+
     component = translation.get(component, component)
     
     return {"Type": type_, "Component": component}
@@ -66,67 +66,104 @@ type_list = [d["Type"] for d in variable_extraction]
 component_list = [d["Component"] for d in variable_extraction]
 
 # translate Posted columns to CaCoCa columns
-df_translated = pd.DataFrame({
-    "Technology": df_posted["subtech"].apply(lambda x: f"Posted-{posted_filename.replace(' ', '-')}-{x}"),
-    # "Technology": df_posted["mode"].apply(lambda x: f"Posted-{posted_filename.replace(' ', '-')}-DRI-{x}"),
-    "Mode": None,
+df_cacoca = pd.DataFrame({
+    "Technology": df_posted["subtech"],
+    "Mode": None, #that's ok
     "Type": type_list,
     "Component": component_list,
-    "Subcomponent": None,
-    "Region": df_posted["region"],
+    "Subcomponent": None, # that's ok
+    "Region": None, #that's ok
     "Period": df_posted["period"],
-    "Usage": None,
+    "Usage": None, #that's ok
     "Value": df_posted["value"],
-    "Uncertainty": None,
-    "Unit": df_posted["unit"],
-    "Non-unit conversion factor": None,
-    "Value and uncertainty comment": None,
+    "Uncertainty": None, #that's ok
+    "Unit": df_posted["unit"], # ok
+    "Non-unit conversion factor": None, # ok
+    "Value and uncertainty comment": None, # ok
     "Source reference": f"Posted {posted_parent_variable}",
-    "Source comment": None,
+    "Source comment": None, #ok
 })
 
 # %%
-# Get allowed types and components from df_cacoca
-allowed_types = set(df_cacoca["Type"].dropna().unique())
-allowed_components = set(df_cacoca["Component"].dropna().unique())
+# ADD OPEX COMPONENTS
+# TODO Warning: This assumes OPEX and CAPEX have compatible unit!
+is_opex_mask = df_cacoca['Component'].isin(posted_opex_components)
+df_opex = df_cacoca[is_opex_mask].copy()
+df_other = df_cacoca[~is_opex_mask]
+
+if not df_opex.empty:
+    # sort (as OPEX Variable should be the master for other columns): 
+    df_opex['Component'] = pd.Categorical(df_opex['Component'], categories=posted_opex_components, ordered=True)
+    df_opex = df_opex.sort_values("Component")
+
+    # aggregate OPEX components
+    grouping_cols = [col for col in df_cacoca.columns if col not in ['Component', 'Value', 'Unit']]
+    agg_logic = {'Value': 'sum', 'Unit': 'first'}
+    aggregated_opex = df_opex.groupby(grouping_cols, as_index=False, dropna=False).agg(agg_logic)
+    aggregated_opex['Component'] = 'Additional OPEX'
+
+    # add aggregated OPEX back to CaCoCa dataframe
+    df_cacoca = pd.concat([df_other, aggregated_opex], ignore_index=True)
+
+
+
+# %%
+# FILTER UNWANTED ENTRIES
 
 # TODO fill
 allowed_types = {
     "High CAPEX",
+    "Low CAPEX",
     "Energy demand",
     "Feedstock demand",
     "OPEX",
+    "Emissions"
 }
 allowed_components = {
     "CAPEX",
-    "Electricity",
     "Additional OPEX",
-    "Hydrogen",
 }
-
-component_exceptions = {"Coal"}
-allowed_components.update(component_exceptions)
+allowed_components.update(energy_types, feedstock_types, emission_types)
 
 # Find rows in df_translated with new types/components
-mask_type = df_translated["Type"].isin(allowed_types)
-mask_component = df_translated["Component"].isin(allowed_components)
+mask_type = df_cacoca["Type"].isin(allowed_types)
+mask_component = df_cacoca["Component"].isin(allowed_components)
 mask_valid = mask_type & mask_component
 
+expected_removal_types = {
+    # specified in project description
+    "Lifetime",
+    "OCF",
+    "Output Capacity",
+    "Output",
+}
+
 # Warn about dropped rows
-# Warn about dropped rows (unique combinations only)
-dropped_rows = df_translated[~mask_valid]
-if not dropped_rows.empty:
-    unique_dropped = dropped_rows[["Type", "Component"]].drop_duplicates()
-    print("Warning: The following unique Type/Component combinations will be dropped:")
+dropped_rows = df_cacoca[~mask_valid]
+unexpected_dropped = dropped_rows[~dropped_rows["Type"].isin(expected_removal_types)]
+if not unexpected_dropped.empty:
+    unique_dropped = unexpected_dropped[["Type", "Component"]].drop_duplicates()
+    print("Warning: Unexpected unique Type/Component combinations are dropped:")
     print(unique_dropped)
 
-# Keep only valid rows
-df_translated_valid = df_translated[mask_valid]
+# TODO add low capex
+# TODO get emissions via emissions factor
 
-# Concatenate
+
+# Keep only valid rows
+df_cacoca = df_cacoca[mask_valid]
+
 # %%
-df_cacoca_new = pd.concat([df_cacoca, df_translated_valid], ignore_index=True)
-df_cacoca_new.to_csv(df_cacoca_path, index=False)
+# SAVE CACOCA DATAFRAME TO CSV
+
+code_folder = Path.cwd().parent if Path.cwd().name == "posted" else Path.cwd().parent.parent
+target_folder = code_folder / "cacoca" / "data" / "tech" / "posted"
+
+# ensure target folder exists
+target_folder.mkdir(parents=True, exist_ok=True)
+
+df_cacoca_path = target_folder / f"{posted_filename}.csv"
+df_cacoca.to_csv(df_cacoca_path, index=False)
 
 # Coupling Goal: extract
 # cost variables CAPEX, OPEX,
