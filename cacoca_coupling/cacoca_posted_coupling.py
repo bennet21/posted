@@ -30,7 +30,11 @@ ALLOWED_COMPONENTS = {
     "Additional OPEX",
 }
 TRANSLATION = {"Fossil Gas": "Natural Gas"}
-EXCLUDED_TECHNAMES = []
+EXCLUDED_TECHNAMES = [
+    "Methanol Synthesis with Reforming", # POSTED issue: uses LVH/a unit that Posted does not know
+    "Naphtha Steam Cracking", # POSTED issue: kilogram / second' ([mass] / [time]) to 'metric_tonne" failed
+    "NGL to Olefins", # POSTED issue: concatenation fails
+]
 
 
 # TODO add low capex
@@ -76,10 +80,18 @@ def initiate_cacoca_dataframe(df_posted: pd.DataFrame, posted_parent_variable: s
     type_list = [d["Type"] for d in variable_extraction]
     component_list = [d["Component"] for d in variable_extraction]
 
+    tech = df_posted["subtech"] if "subtech" in df_posted.columns else posted_parent_variable.split("|")[-1]
+    # if additional differentiation exists, it is added to technology
+    used_columns = ["subtech", "variable", "mode", "period", "value", "unit"]
+    unused_columns = [col for col in df_posted.columns if col not in used_columns]
+    if unused_columns:
+        for col in unused_columns:
+            tech += "|" + df_posted[col].astype(str)
+
     # translate Posted columns to CaCoCa columns
     df_cacoca = pd.DataFrame({
-        "Technology": df_posted["subtech"],
-        "Mode": None, #that's ok
+        "Technology": tech,
+        "Mode": df_posted["mode"] if "mode" in df_posted.columns else None,
         "Type": type_list,
         "Component": component_list,
         "Subcomponent": None, # that's ok
