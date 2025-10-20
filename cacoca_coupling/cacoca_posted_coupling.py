@@ -4,9 +4,14 @@ from typing import Union
 
 from posted.noslag import DataSet
 
-# TODO fill
-ENERGY_TYPES = ["Electricity", "Coal", "Natural Gas"]
-FEEDSTOCK_TYPES = ["Oxygen", "Iron Ore", "Scrap Steel", "Water"]
+# TODO heat emission factor?!
+# TODO Hydrogen could be both energy and feedstock, same for Natural Gas
+# TODO handle CAPEX annualized
+ENERGY_TYPES = ["Electricity", "Coal", "Natural Gas", "Heat", "Hydrogen"]
+FEEDSTOCK_TYPES = ["Oxygen", "Iron Ore", "Scrap Steel", "Water", "Ammonia", "Captured CO2",
+                   "Steel Slab", "Steel Liquid", "Cooling Water", "Methanol",
+                   "Alloys", "Directly Reduced Iron", "Graphite Electrode", "Lime",
+                   "Nitrogen", "Steel Scrap"]
 EMISSION_TYPES = ["CO2"]
 ALLOWED_TYPES = {
     "High CAPEX",
@@ -14,21 +19,27 @@ ALLOWED_TYPES = {
     "Energy demand",
     "Feedstock demand",
     "OPEX",
-    "Emissions"
+    "Emissions",
 }
 EXPECTED_REMOVAL_TYPES = {
         # specified in project description
         "Lifetime",
         "OCF",
         "Output Capacity",
-        "Output",
-        "Total Output Capacity"
+        "Output", # TODO remove also Output|...
+        "Total Output Capacity",
+
+        "Capture Rate", # already in tech name
+        "Total Input Capacity", # TODO what do do with this?
+        "Storage Capacity", # TODO what do do with this?
+        "Total Production Expenditure", # TODO what do do with this?
+        "CAPEX Annualised", # TODO what do do with this?
     }
 POSTED_OPEX_COMPONENTS = ['OPEX Variable', 'OPEX Fixed']
-ALLOWED_COMPONENTS = {
+ALLOWED_COMPONENTS = [
     "CAPEX",
     "Additional OPEX",
-}
+]
 TRANSLATION = {"Fossil Gas": "Natural Gas"}
 EXCLUDED_TECHNAMES = [
     "Methanol Synthesis with Reforming", # POSTED issue: uses LVH/a unit that Posted does not know
@@ -122,6 +133,8 @@ def variable_translation(variable: str, parent_variable: str):
         type_ = variable
         component = variable
 
+    component = TRANSLATION.get(component, component)
+
     if type_ == "CAPEX":
         type_ = "High CAPEX"
 
@@ -134,8 +147,6 @@ def variable_translation(variable: str, parent_variable: str):
             type_ = "Energy demand"
         elif component in FEEDSTOCK_TYPES:
             type_ = "Feedstock demand"
-
-    component = TRANSLATION.get(component, component)
     
     return {"Type": type_, "Component": component}
             
@@ -162,11 +173,11 @@ def aggregate_opex(df_cacoca: pd.DataFrame) -> pd.DataFrame:
     return df_cacoca
 
 def filter_cacoca_dataframe(df_cacoca: pd.DataFrame) -> pd.DataFrame:
-    ALLOWED_COMPONENTS.update(ENERGY_TYPES, FEEDSTOCK_TYPES, EMISSION_TYPES)
-
+    all_allowed_components = ALLOWED_COMPONENTS + ENERGY_TYPES + FEEDSTOCK_TYPES + EMISSION_TYPES
+    
     # Find rows in df_translated with new types/components
     mask_type = df_cacoca["Type"].isin(ALLOWED_TYPES)
-    mask_component = df_cacoca["Component"].isin(ALLOWED_COMPONENTS)
+    mask_component = df_cacoca["Component"].isin(all_allowed_components)
     mask_valid = mask_type & mask_component
 
     # Warn about dropped rows
